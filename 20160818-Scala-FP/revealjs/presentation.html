@@ -1,0 +1,367 @@
+
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>Functional Programming in Scala (Introduction)</title>
+		<meta name="author" content="Some(László Andrási)">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+    <section>
+  <h1>Functional Programming in Scala (Introduction)</h1>
+<p>by: László Andrási</p></section>
+<section>
+  <section>
+  <h2>Case-Classes & Pattern matching</h2></section>
+<section>
+  <h2>In the previous episode...</h2>
+<p>Simple Expressions, Objects, Classes, Traits</p></section>
+
+<section>
+  <pre><code class='scala' data-trim>trait SampleTrait {
+  val foo = "bar"
+}
+        </code></pre>
+<pre><code class='scala' data-trim>class Sample001 {
+  val x = 1
+  var y = 1
+}
+
+object Sample001 {
+  val foo = new Sample001()
+  foo.y = 2
+  println(foo.y)
+}</code></pre></section>
+
+<section>
+  <h3>case classes</h3>
+<pre><code class='scala' data-trim>case class Person(firstName: String, lastName: String)
+case class MutablePerson(var firstName: String, var lastName: String)
+
+object Sample002 {
+  val bud = Person("Bud", "Spencer")
+  val terence = MutablePerson("Terence", "Hill")
+
+  terence.firstName = "Zsugabubus" // call to a mutator
+}</code></pre></section>
+
+<section>
+  <h3>the apply(...) method</h3>
+<pre><code class='scala' data-trim>class Person3(val firstName: String,
+              val lastName: String)
+
+object Person3 {
+  def apply(firstName: String, lastName: String) =
+    new Person3(firstName, lastName)
+}
+
+object Sample003 {
+  val p = Person3("John", "Doe") // No new keyword!!!
+}</code></pre></section>
+
+<section>
+  <h3>pattern matching</h3>
+<pre><code class='scala' data-trim>object Sample004 extends App {
+
+  def fun(a: List[Int]) = a match {
+    case List(0, p, q) => p + q
+    case _ => -1
+  }
+
+  println(fun(List(0, 10, 20)))
+  println(fun(List(0, 1, 2, 3)))
+  println(fun(List(1, 10, 20)))
+  println(fun(List()))
+
+}</code></pre></section>
+
+<section>
+  <h3>pattern matching (2)</h3>
+<pre><code class='scala' data-trim>object Sample005 extends App {
+  def sum(l: List[Int]): Int = l match {
+    case Nil => 0
+    case head :: tail => head + sum(tail)
+  }
+
+  def fun(p: Person) = p match {
+    case Person(firstName, _) if firstName == "Bud" => "Rumosdió"
+    case Person(_, lastName)  if lastName.length > 5 => "Kávé"
+    case _ => "Pisztácia"
+  }
+
+  println(fun(Person("Terence", "Hill")))
+  println(fun(Person("Nimphas", "Corporation")))
+  println(fun(Person("Bruce", "Lee")))
+}</code></pre></section>
+</section>
+
+<section>
+  <section>
+  <h2>function literals, Eta transformations</h2></section>
+<section>
+  <h3>Methods vs Functions</h3>
+<pre><code class='scala' data-trim>class Sample101 {
+  def addMethod (a: Int, b: Int): Int = a + b
+}
+
+object Sample101 {
+  val s = new Sample101()
+
+  def add(a: Int, b: Int): Int = a + b
+  val add2: (Int, Int) => Int = s.addMethod
+  val add3 = s.addMethod _
+  val add4 = (a: Int, b: Int) => a + b
+
+  // val sumX = List.reduce(s.addMethod) // <- Not working
+
+  val list = List(1, 2, 3, 4, 5)
+  val sum1 = list.reduce(add)
+  val sum2 = list.reduce(add2)
+  val sum3 = list.reduce(add3)
+  val sum4 = list.reduce(add4)
+
+}</code></pre></section>
+
+<section>
+  <h3>Higher order functions</h3>
+<pre><code class='scala' data-trim>object Sample102 extends App {
+  def identity(x: Int) = x
+  def sqr(x: Int) = x * x
+  def cube(x: Int) = x * x * x
+
+  def fun(f: Int => Int, a: Int, b: Int): Int =
+    if (a==b) f(a)
+    else f(a) + fun(f, a + 1, b)
+
+  println( fun(identity, 5, 4) )
+  println( fun(sqr, 5, 5) )
+  println( fun(cube, 10, 15) )
+}</code></pre></section>
+
+<section>
+  <h3>Anonymous functions</h3>
+<pre><code class='scala' data-trim>object Sample103 {
+  def doTwice(f: Int=>Int, a: Int): Int = f(f(a))
+
+  println( doTwice( x => x, 10))
+  println( doTwice( x => x * 2, 10))
+  println( doTwice( _ * 2, 10))
+
+  val add: (Int, Int) => Int = _ + _
+  println( add( 10, 20) )
+}</code></pre></section>
+
+<section>
+  <h3>Anonymous functions and recursion</h3>
+<pre><code class='scala' data-trim>import scala.annotation.tailrec
+
+object Sample104 extends App {
+
+  @tailrec
+  def repeat(f: Int => Int, n:Int, x: Int): Int = {
+    if (n < 1) x
+    else repeat(f, n - 1, f(x))  // OR? f(repeat(f, n - 1, x))
+  }
+
+  val p = repeat(x => x * x, 10, 2)  // (2*2) * (2 *2) * ...
+  println(p)
+
+}</code></pre></section>
+</section>
+
+<section>
+  <section>
+  <h2>Currying</h2></section>
+<section>
+  <h3>Multiple parameter lists</h3>
+<pre><code class='scala' data-trim>import scala.annotation.tailrec
+
+object Sample201 extends App{
+
+  @tailrec
+  def repeat(f: Long => Long)(n: Long)(x: Long): Long = {
+    if (n < 1) x
+    else repeat(f)(n - 1)(f(x))
+  }
+
+  val double = repeat(x => x + x) _ // if I left of this _ ->>>>
+  val doubleX10 = repeat(x => x + x)(10) _
+
+  println (double(10))
+  println (doubleX10)
+  println (doubleX10(2))
+}
+/*
+->>>>
+InError:(13, 22) missing argument list for method repeat in object Sample201
+Unapplied methods are only converted to functions when a function type is expected.
+  You can make this conversion explicit by writing `repeat _` or `repeat(_)(_)(_)` instead of `repeat`.
+val double = repeat(x => x + x)t
+*/</code></pre></section>
+</section>
+
+<section>
+  <section>
+  <h2>Lazy evaluation</h2></section>
+<section>
+  <h3>Call-by name arguments</h3>
+<pre><code class='scala' data-trim>object Sample301 extends App{
+  def something() = { println("calling something"); 1 } // return value
+
+  def callByValue(x: Int) = {
+    println("x1=" + x)
+    println("x2=" + x)
+  }
+
+  def callByName(x: => Int) = {
+    println("x1=" + x)
+    println("x2=" + x)
+  }
+  println("call by value:")
+  callByValue(something())
+
+  println("call by name:")
+  callByName(something())
+
+
+}</code></pre></section>
+
+<section>
+  <h3>repeat Loop</h3>
+<pre><code class='scala' data-trim>object Sample302 extends App {
+
+  def repeatLoop(com: => Unit)(con: => Boolean) {
+    com
+    if (con) repeatLoop(com)(con)
+  }
+
+  var x = 0
+  repeatLoop {
+    x += 1
+    println(x)
+  }(x < 10)
+
+}</code></pre></section>
+
+<section>
+  <h3>lazy vals</h3>
+<pre><code class='scala' data-trim>object Sample303 extends App {
+  class Counter(var i: Int = 0) {
+    def inc: Unit = i = i + 1
+    def next = i + 1
+    val next2 = i + 1
+    lazy val next3 = i + 1
+  }
+
+  val c1 = new Counter(10)
+  c1.inc
+  println((c1.next, c1.next2, c1.next3))
+  c1.inc
+  println((c1.next, c1.next2, c1.next3))
+  c1.inc
+  println((c1.next, c1.next2, c1.next3))
+
+}</code></pre></section>
+</section>
+
+<section>
+  <section>
+  <h2>Methods on collections</h2></section>
+<section>
+  <h4>map, filter, reduce</h4>
+<pre><code class='scala' data-trim>object Sample401 extends App {
+  val a = 1 to 10 // what? 1.to(10)
+  val b = 1 until 10
+
+  println(a)
+  println(b)
+
+  val r1 = a.map(x => x * x)
+  val r2 = a.reduce((x, y) => x + y) // or sum() is pre defined...
+  val r3 = a.filter(x => x < 5)
+
+  val r4 = b
+    .map(x => x * x)
+    .filter(x => x % 2 == 0)
+    .reduce((x, y) => x + (y * 2))
+
+  println((r1, r2, r3, r4))
+}</code></pre></section>
+</section>
+
+<section>
+  <section>
+  <h2>Summary</h2></section>
+<section>
+  <h2>Scala is sometimes..</h2>
+<p>Strange</p>
+<p>Elegant</p>
+<p>Fun</p></section>
+</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// More info https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+       margin: 0.01,
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
+    
