@@ -4,7 +4,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>A második legtöbbször félreértett programozás nyelv</title>
+		<title>A második legtöbbször félreértett programozási nyelv</title>
 		<meta name="author" content="Some(Andrási László)">
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,8 +39,9 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
     <section>
-  <h1>A második legtöbbször félreértett programozás nyelv</h1>
-<p>by: Andrási László</p></section>
+  <h1>A második legtöbbször félreértett programozási nyelv</h1>
+<p>Andrási László</p>
+<p>Startup Safary 2017 - Balabit</p></section>
 <section>
   <section>
   <h2>Miért a Scala?</h2></section>
@@ -119,7 +120,7 @@ Olyan _eszközök_ kellenek, amikkel halandó emberek is tudnak _megbízható_ s
  2016.06. - 2016.10.
 
  * Néhányan a csapatből elkezdünk ismerkedni a Scala-val (coursera)
- * Az első próbálkozások __Spark__-al -> ígéretesek.
+ * Az első próbálkozások __Spark__-al
  * Elég könnyen bedőltünk a "hype"-nak
  * Beláttuk, hogy a Spark sem oldja meg minden problémánkat (De van amit igen!)
 
@@ -128,7 +129,7 @@ Olyan _eszközök_ kellenek, amikkel halandó emberek is tudnak _megbízható_ s
 <section data-markdown>
 
  2016.11 - 2017.01
- * A teljes csapat Scalaval dolgozik
+ * A teljes csapat Scala-val dolgozik
  * A rendszer jelentős részét átírtuk Scala-ra
  * Python-al oda-vissza kompatibilítást megőrízve (JPype)
  * Vegyes a kódbázis, de úgy tűnik, hogy a batch processinggel kapcsolatos problémákat megoldottuk
@@ -138,7 +139,7 @@ Olyan _eszközök_ kellenek, amikkel halandó emberek is tudnak _megbízható_ s
 
  2017.02 - 2017.04
 
- * Új realtime komponens Akka-val -> az első eredmények ígéretesek
+ * Új realtime komponens Akka-val
           </section>
 
 <section data-markdown>
@@ -204,16 +205,216 @@ object Main002 extends App {
   val judit = Female("Judit", 1984)
   println(zoltan.age)
 }</code></pre></section>
+
+<section>
+  <h2>the body of the class is the constructor</h2>
+<pre><code class='scala' data-trim>
+class Hello(name: String) {
+  // Statement executed as part of the constructor
+  println("New instance with name: " + name)
+
+  // Method which accesses the constructor argument
+  def sayHello = println("Hello, " + name + "!")
+}
+          </code></pre></section>
+
+<section>
+  <h2>objects instead of static methods</h2>
+<pre><code class='scala' data-trim>
+class Hello(name: String) {
+  def sayHello = println("Hello, " + name + "!")
+}
+
+// Companion object of class Hello
+object Hello {
+  // Factory method
+  def apply(name: String) = new Hello(name)
+}
+          </code></pre></section>
+
+<section>
+  <h2>operators are just methods</h2>
+<pre><code class='scala' data-trim>
+val a = 23
+val b = 65
+
+// + is a method in class Int, which can be called using
+// the regular method call syntax...
+val sum1 = a.+(b)
+
+// ... or using the infix syntax
+val sum2 = a + b
+
+// You can use infix syntax with any method that takes one parameter
+val result = List(2, 5, 13, 8) contains 4
+          </code></pre></section>
+
+<section>
+  <h2>higher order functions</h2>
+<pre><code class='scala' data-trim>
+def sum(f: Int => Int, a: Int, b: Int): Int =
+  if (a > b) 0
+  else f(a) + sum(f, a + 1, b)
+
+def cube(x: Int): Int = x * x * x
+def id(x: Int): Int = x
+
+def sumInts(a: Int, b: Int) = sum(id, a, b)
+def sumCubes(a: Int, b: Int) = sum(cube, a, b)
+def sumFactorials(a: Int, b: Int) = sum(factorial, a, b)
+
+def sumCubes(a: Int, b: Int) = sum(x => x * x * x, a, b)
+// just syntactic sugar ... { def f(x1: T1, …, xn: Tn) = e ; f }
+
+          </code></pre></section>
+
+<section>
+  <h2>scala.collection</h2>
+<pre><code class='scala' data-trim>
+val numbers = List(1, 2, 3, 4)
+
+numbers.map((i: Int) => i * 2)  // List(2, 4, 6, 8)
+numbers.filter((i: Int) => i % 2 == 0)  // List(2, 4)
+
+List(1, 2, 3).zip(List("a", "b", "c"))
+// res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
+
+// partition, find, drop, fold, flatten, flatMap
+          </code></pre></section>
+
+<section>
+  <h2>scala.collection</h2>
+<pre><code class='scala' data-trim>
+val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
+
+extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
+// res0: scala.collection.immutable.Map[String,Int] =
+// Map((steve,100), (bob,101))
+
+/*
+  mutable and immutable collections
+  parallel collections
+*/
+          </code></pre></section>
+
+<section>
+  <h2>tail recursion 1.</h2>
+<pre><code class='scala' data-trim>
+// a wrong example
+def factorial(number:Int) : Int = {
+  if (number == 1) 1
+  else number * factorial(number - 1)
+}
+          </code></pre></section>
+
+<section>
+  <h2>tail recursion 2.</h2>
+<pre><code class='scala' data-trim>
+// a better example
+def factorial(number: Int) : Int = {
+  @tailrec
+  def factorialWithAcc(acc: Int, number: Int) : Int = {
+    if (number == 1) acc
+    else factorialWithAcc(acc * number, number - 1)
+  }
+  factorialWithAcc(1, number)
+}
+          </code></pre></section>
+
+<section>
+  <h2>call by name parameters 1.</h2>
+<pre><code class='scala' data-trim>
+def x: Unit = { some side-effect }
+
+def callByValue(x : Unit) = {
+  // do nothing with x
+}
+
+def callByName(x : => Unit) = {
+  // do nothing with x
+}
+          </code></pre></section>
+
+<section>
+  <h2>call by name parameters 2.</h2>
+<pre><code class='scala' data-trim>
+def x: Unit = { some side-effect }
+
+def callByValue(x : Unit) = {
+  for (i <- 0 until 5) {
+    print(x)
+  }
+} // x evaluated 1 times
+
+def callByName(x : => Unit) = {
+  for (i <- 0 until 5) {
+    print(x)
+  }
+} // x evaluated 5 times
+          </code></pre></section>
+
+<section>
+  <h2>lazy evaluation</h2>
+<pre><code class='scala' data-trim>
+object VarApp extends App {
+  lazy val number = { println("Variable number is initialized."); 99 }
+  println("Before Accessing 'number' variable:")
+  println(number + 1)
+  println(number + 1)
+  println(number + 1)
+}
+          </code></pre></section>
+
+<section>
+  <h2>methods can have multiple parameter lists</h2>
+<pre><code class='scala' data-trim>
+def add(x: Int)(y: Int) = x + y
+
+// The method add2 has no parameter list; it fills in
+// only the first parameter list of the method add
+def add2 = add(2) _
+
+// Call add2, which returns a function that takes one parameter,
+// then call that function with the argument 3
+val result = add2(3)
+          </code></pre></section>
+
+<section>
+  <h2>you can define methods inside methods</h2>
+<pre><code class='scala' data-trim>
+def sum(xs: List[Int]): Int = {
+  // Nested helper method
+  def helper(accu: Int, rest: List[Int]): Int = rest match {
+    case Nil => accu
+    case _   => helper(accu + rest.head, rest.tail)
+  }
+
+  // Call the nested helper method
+  helper(0, xs)
+}
+          </code></pre></section>
+
+<section data-markdown>
+
+### Amikre nem maradt idő...
+
+ * pattern matching
+ * generic programming (A Scala type system király!)
+ * your own Domain Specific Language
+ * ...
+          </section>
 </section>
 
 <section>
   <section>
-  <h2>Hogyan tovább?</h2></section>
-</section>
+  <h2>Ha meg akarod ismerni?</h2></section>
+<section>
+  <h2>www.coursera.org<br/>/specializations/scala</h2></section>
 
 <section>
-  <section>
-  <h2>A legidegesítőbb dolgok</h2></section>
+  <h2>Köszi! Kérdések?</h2>
+<p>laszlo.andrasi @ balabit.com</p>
+<p>twitter: @a_laco</p></section>
 </section>
 
 			</div>

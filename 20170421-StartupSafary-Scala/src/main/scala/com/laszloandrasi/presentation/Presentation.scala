@@ -29,7 +29,7 @@ case class Presentation(title: String, creator: Option[String] = None)(sections:
   // def toHTML = startSection.toHTML + (sections.map(_.toHTML) mkString "\n")
 
   def startSection = Slide(
-    Title(title, 1), Paragraph(s"by: ${creator.getOrElse("Anonymous")}")
+    Title(title, 1), Paragraph(s"${creator.getOrElse("Anonymous")}"), Paragraph("Startup Safary 2017 - Balabit")
   )
   val subSections = sections
 }
