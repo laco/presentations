@@ -1,13 +1,11 @@
 package com.laszloandrasi.presentation
 
-/**
-  * Created by landrasi on 2016.08.17..
-  */
 object PresentationApp extends App {
 
   val presentation =
     Presentation("A második legtöbbször félreértett programozási nyelv",
                  creator = Some("Andrási László"))(
+      Chapter("Hello!", Slide(Title("Hello!"), Code.fromFile("HelloWorld.scala"))),
       Chapter(
         "Miért a Scala?",
         MarkdownSlide(
